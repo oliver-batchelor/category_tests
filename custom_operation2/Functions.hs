@@ -9,16 +9,16 @@ import           ConCat.AltCat
 import Prelude hiding (uncurry, curry)
 import qualified Prelude as P
 
-class FooCat k  where bar_ :: Prod k Int Int `k` Int
+class FooCat k  where barC :: Prod k Int Int `k` Int
 
-instance FooCat (->)  where bar_ = uncurry (+)
-instance FooCat Syn.Syn  where bar_ = Syn.app0 "Bar"
+instance FooCat (->)  where barC = uncurry (+)
+instance FooCat Syn.Syn  where barC = Syn.app0 "Bar"
 
 
 bar :: FooCat k => (Prod k Int Int `k` Int)
-bar = bar_
+bar = barC
 {-# INLINE [0] bar #-}
-{-# RULES "reveal op0" reveal bar = bar_ #-}
+{-# RULES "reveal op0" reveal bar = barC #-}
 
 
 -- this results in:
@@ -30,6 +30,7 @@ bar = bar_
 -- {-# NOINLINE  baz #-}
 
 -- This is fine, the 'curry' ends up in the category returned from ccc
+-- e.g. rendered as: 'uncurry (curry "Bar")'
 baz :: (ClosedCat k, FooCat k, Ok k Int) => Int `k` (Exp k Int Int)
 baz = curry bar
 {-# NOINLINE baz #-}
